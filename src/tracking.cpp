@@ -82,8 +82,7 @@ void Tracker::track(cv::Mat frame)
     half *image = (half *)malloc(((int)array.size()) * sizeof(half));
     unsigned int lenImage = ((int)array.size());
     floattofp16((unsigned char *)(void *)image, cvImg32, lenImage);
-    // free(cvImg32);
-    // half *image = LoadImage(TEST_IMAGE, networkDim);
+    free(cvImg32);
 
     retCode = mvncLoadTensor(graphHandle, image, lenImage, NULL);
     free(image);
@@ -111,7 +110,9 @@ void Tracker::track(cv::Mat frame)
     resultData32 = (float *)malloc(numResults * sizeof(float));
 
     fp16tofloat(resultData32, (unsigned char *)resultData16, numResults);
-    float len = resultData32[0];
+    int len = (int)floor(resultData32[0]);
+
+    std::cout << "Length: " << std::to_string(len) << ", " << std::to_string(numResults) << std::endl;
 
     detections.clear();
     for (int i = 0; i < len; i++)
@@ -127,7 +128,7 @@ void Tracker::track(cv::Mat frame)
             y2 = resultData32[index + 6] * frame.size().height;
 
             /* Discard if is out of bounds*/
-            if (x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0)
+            if (x1 < 0.0f || y1 < 0.0f || x2 < 0.0f || y2 < 0.0f)
             {
                 continue;
             }
@@ -136,6 +137,10 @@ void Tracker::track(cv::Mat frame)
             {
                 continue;
             }
+
+            // if ((x2 - x1) < 5.0f || (y2 - y1) < 5.0f ) {
+            //     continue;
+            // }
             /*******************************/
 
             /* Discard if dimensions make no sense */
@@ -154,16 +159,17 @@ void Tracker::track(cv::Mat frame)
             if (score > 0.6f)
             {
                 Box box;
-                box.x1 = x1;
-                box.x2 = x2;
-                box.y1 = y1;
-                box.y2 = y2;
+                box.x1 = (int)round(x1);
+                box.x2 = (int)round(x2);
+                box.y1 = (int)round(y1);
+                box.y2 = (int)round(y2);
                 box.score = score;
                 box.label = labels[(int)round(resultData32[index + 1])];
                 detections.insert(detections.end(), box);
             }
         }
     }
+    free(resultData32);
 }
 
 std::vector<Box> Tracker::getBoxes()
