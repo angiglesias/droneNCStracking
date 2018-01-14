@@ -3,9 +3,10 @@
 // #include <opencv2/highgui.hpp>
 #include "opencv2/imgproc.hpp"
 
-// #include <cstdio>
-// #include <cstdlib>
-// #include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
 #include <mvnc.h>
 #include <cmath>
 

@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
     /*init video capture*/
     cv::VideoCapture video("resources/video0.avi");
-    cv::VideoWriter out("result.avi", CV_FOURCC('M', 'J', 'P', 'G'), 20, cv::Size(video.get(CV_CAP_PROP_FRAME_WIDTH), video.get(CV_CAP_PROP_FRAME_HEIGHT)));
+    cv::VideoWriter out("result.mkv", CV_FOURCC('X', '2', '6', '4'), 20, cv::Size(video.get(CV_CAP_PROP_FRAME_WIDTH), video.get(CV_CAP_PROP_FRAME_HEIGHT)));
     cv::Mat frame;
 
     for (;;)
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
             break;
         ncs->track(frame);
         std::vector<Box> detections = ncs->getBoxes();
-        for (int i = 0; i < (20 <= detections.size() ? 20 : detections.size()); i++)
+        for (int i = 0; i < (10 <= detections.size() ? 10 : detections.size()); i++)
         {
             cv::Point p1(detections[i].x1, detections[i].y1), p2(detections[i].x2, detections[i].y2);
             cv::rectangle(frame, p1, p2, cv::Scalar(255, 0, 0), 2);
@@ -39,7 +39,11 @@ int main(int argc, char **argv)
             cv::putText(frame, std::to_string(detections[i].score), cv::Point(p1.x, p1.y + labelsize.height), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 255, 255), 1);
             printf("\tBox%d[x1:%d, y1:%d, x2:%d, y2:%d, center: (%d,%d)] score: %f label: %s\n", i, detections[i].x1, detections[i].y1, detections[i].x2, detections[i].y2, detections[i].center()[0], detections[i].center()[1], detections[i].score, detections[i].label.c_str());
         }
+        cv::imshow("result", frame);
         out.write(frame);
+        cv::waitKey(1);
     }
-    // delete ncs;
+    out.release();
+    video.release();
+    delete ncs;
 }

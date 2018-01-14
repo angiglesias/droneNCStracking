@@ -112,7 +112,7 @@ void Tracker::track(cv::Mat frame)
     fp16tofloat(resultData32, (unsigned char *)resultData16, numResults);
     int len = (int)floor(resultData32[0]);
 
-    std::cout << "Length: " << std::to_string(len) << ", " << std::to_string(numResults) << std::endl;
+    // std::cout << "Length: " << std::to_string(len) << ", " << std::to_string(numResults) << std::endl;
 
     detections.clear();
     for (int i = 0; i < len; i++)
@@ -138,14 +138,14 @@ void Tracker::track(cv::Mat frame)
                 continue;
             }
 
-            // if ((x2 - x1) < 5.0f || (y2 - y1) < 5.0f ) {
-            //     continue;
-            // }
+            if ((x2 - x1) < 20.0f || (x2 -x1) > 300.0f || (y2 - y1) < 20.0f || (y2 -y1) > 300.0f ) {
+                continue;
+            }
             /*******************************/
 
             /* Discard if dimensions make no sense */
             float rel = (y2 - y1) / (x2 - x1);
-            if (rel > 3.0f || rel < 0.33f)
+            if (rel > 4.0f || rel < 0.25f)
             {
                 continue;
             }
